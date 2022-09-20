@@ -1,5 +1,6 @@
 ## Interface: 30400
 ## Author: Aerendil
 ## Title: CLC DK
+## Notes: Death Knight Helper
 
 CLC_DK.lua
