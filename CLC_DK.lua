@@ -490,9 +490,9 @@ function CLCDK:GetDisease()
 	
 	for i = 1, 40 do
 		local name, _, _, _, dur, expires, _, _, _, id = UnitDebuff("target", i, "PLAYER");
-		if name == "Frost Fever" then
+		if id == (55095) then
 			local FFexpires = expires - curtime;
-		elseif name == "Blood Plague" then
+		elseif name == (55078) then
 			local BPexpires = expires - curtime;
 		end		
 	end
@@ -589,7 +589,7 @@ function CLCDK:FrostMove()
 	end	
 	--Disease Stuff
 	local disease, move = CLCDK:GetDisease()	
-	if disease then	return move	end			
+	if disease then	return move end			
 		
 	--Obliterate
 	if (runeCD(5,6) and runeCD(3,4)) or (availableDeathRunesCount()==1 and (runeCD(5,6) or runeCD(3,4))) or availableDeathRunesCount()>= 2 then
@@ -767,8 +767,7 @@ end)
 
 -----Options-----
 SLASH_CLCDK1 = '/clcdk'
-SlashCmdList["CLCDK"] = function()
-	InterfaceOptionsFrame_OpenToCategory(CLCDK_OptionsPanel)
+SlashCmdList["CLCDK"] = InterfaceOptionsFrame_OpenToCategory(CLCDK_OptionsPanel)
 end
 
 function CLCDK_SetDefaults()
