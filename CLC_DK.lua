@@ -1,5 +1,5 @@
 _G["CLCDK"] = CLCDK
-CLCDK_CONFIG_Ver = "1.0c"
+CLCDK_CONFIG_Ver = "3.4c"
 
 -----Create Main Frame-----
 local CLCDK = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
@@ -585,7 +585,7 @@ function CLCDK:FrostMove()
 	
 	--Obliterate
 	if IsUsableSpell(spells["Death Strike"]) then
-		return CLCDK:GetRangeandIcon(spells["Death Strike"])
+		return CLCDK:GetRangeandIcon(spells["Obliterate"])
     end
 		
 	-- Blood Strike if blood runes
@@ -649,7 +649,8 @@ function CLCDK:BlankMove()
 	CLCDK.Icon:SetVertexColor(1, 1, 1, 1);
 		
 	--Disease Stuff
-	CLCDK:GetDisease()
+	local disease, move = CLCDK:GetDisease()	
+	if disease then	return move	end	
 
 	-- Blood Strike
 	if runeCD(1,2) then		
@@ -660,7 +661,7 @@ function CLCDK:BlankMove()
 	if (runeCD(5,6) and runeCD(3,4)) or (availableDeathRunesCount()==1 and (runeCD(5,6) or runeCD(3,4))) or availableDeathRunesCount()>=2 then
 		return CLCDK:GetRangeandIcon(spells["Death Strike"])
 	end	
-			
+	
 	-- Death Coil
 	if UnitPower("player") >= 40 then
 		return CLCDK:GetRangeandIcon(spells["Death Coil"])
@@ -682,8 +683,10 @@ function CLCDK:CheckSpec()
 	else
 		spec = ""
 	end
+	
 	GoD = false
 	FS = 0
+	
 	for i = 1, GetNumGlyphSockets() do
 		local _, _, glyphID, _ = GetGlyphSocketInfo(i);		
 		if ( glyphID ~= nil ) then	
