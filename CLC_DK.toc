@@ -1,6 +1,6 @@
 ## Interface: 30400
 ## Author: Aerendil
-## Version: 1.0
+## Version: 1.0c
 ## Title: CLC DK
 ## Notes: Death Knight Helper.
 ## SavedVariablesPerCharacter: CLCDK_Settings

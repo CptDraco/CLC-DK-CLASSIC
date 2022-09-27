@@ -1,17 +1,18 @@
 _G["CLCDK"] = CLCDK
-CLCDK_CONFIG_Ver = 1.0
+CLCDK_CONFIG_Ver = "1.0c"
 
 -----Create Main Frame-----
-local CLCDK = CreateFrame("Button", nil, UIParent)
+local CLCDK = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
 CLCDK:SetWidth(94)
 CLCDK:SetHeight(68)
 CLCDK:SetFrameStrata("BACKGROUND")
---CLCDK:SetBackdrop{bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = false, tileSize = 1, insets = {left = 0, right = 0, top = 0, bottom = 0},}
---CLCDK:SetBackdropColor(0, 0, 0, 0.5)
+CLCDK:SetBackdrop{bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = false, tileSize = 1, insets = {left = 0, right = 0, top = 0, bottom = 0},}
+CLCDK:SetBackdropColor(0, 0, 0, 0.5)
 -----End Create Main Frame-----
 
 -----Locals-----
-local spec, GoD, FS 
+local spec, GoD, FS
+--local SPEC_UNKNOWN, SPEC_BLOOD, SPEC_FROST, SPEC_UNHOLY = 0, 1, 2, 3
 local updatetimer = 0
 local runes_colour = {{1, 0, 0},{0, 1, 1},{0, 0.95, 0},{0.8, 0.1, 1}} --Blood,  Unholy,  Frost,  Death
 local spells = {
@@ -63,7 +64,7 @@ function CLCDKUpdatePosition()
 	CLCDK:ClearAllPoints()
 	CLCDK:SetPoint(CLCDK_Settings.Point, "UIParent", CLCDK_Settings.X, CLCDK_Settings.Y)
 	CLCDK:SetScale(CLCDK_Settings.Scale)
-	--CLCDK:SetBackdropColor(0, 0, 0, CLCDK_Settings.Trans)
+	CLCDK:SetBackdropColor(0, 0, 0, CLCDK_Settings.Trans)
 end
 
 function formatTime(timeleft)
@@ -75,44 +76,7 @@ function formatTime(timeleft)
 		return format("%d:%2.2d", timeleft/60, timeleft%60)
 	end	
 	return timeleft
-end					
-
------Menu-----
-CLCDK:RegisterForClicks("RightButtonUp")
-CLCDK:EnableMouse(true)
-CLCDK:SetMovable(true)
-
-local CLCDK_Menu = CreateFrame("Frame", "CLCDK_Menu")
-CLCDK_Menu.displayMode = "MENU"
-local info = {}
-CLCDK_Menu.initialize = function(self, level) 
-    if not level then return end
-    wipe(info)
-    if level == 1 then
-        --Title
-        info.isTitle = 1
-        info.text = "CLCDK Settings"
-        info.notCheckable = 1
-        UIDropDownMenu_AddButton(info, level)
-		
-		info.notCheckable = nil
-		info.isTitle = nil
-		info.disabled = nil	
-		
-		--Lock	
-		info.text = CLCDK_CONFIG_Locked	
-		info.checked = CLCDK_Settings.Locked 
-		info.func = function() CLCDK_Settings.Locked = not CLCDK_Settings.Locked; CLCDK_OptionsRefresh(); end       
-		UIDropDownMenu_AddButton(info, level)			
-		
-		info.notCheckable = 1
-		info.checked = nil			
-				
-		info.text = "Full Settings"		
-        info.func = function() InterfaceOptionsFrame_OpenToCategory(CLCDK_OptionsPanel) end       
-        UIDropDownMenu_AddButton(info, level)		
-    end
-end
+end	
 
 CLCDK:SetScript("OnClick", function(self, button)
 	if button == "RightButton" and CLCDK:GetAlpha() ~= 0 then
@@ -135,7 +99,7 @@ end)
 	
 -----Create Frames------
 function CLCDK:CreateIcon(spellname, size)
-	frame = CreateFrame("Frame", nil, CLCDK)
+	frame = CreateFrame("Frame", nil, CLCDK, "BackdropTemplate")
 	frame:SetWidth(size)
 	frame:SetHeight(size)
 	frame:SetFrameStrata("BACKGROUND")
@@ -153,12 +117,12 @@ function CLCDK:CreateIcon(spellname, size)
 	return frame
 end
 
-CLCDK.CD1 = CreateFrame("Button", nil, CLCDK)
+CLCDK.CD1 = CreateFrame("Button", nil, CLCDK, "BackdropTemplate")
 CLCDK.CD1:SetWidth(33)
 CLCDK.CD1:SetHeight(68)
 CLCDK.CD1:SetFrameStrata("BACKGROUND")
---CLCDK.CD1:SetBackdrop{bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = false, tileSize = 1, insets = {left = 0, right = 0, top = 0, bottom = 0},}
---CLCDK.CD1:SetBackdropColor(0, 0, 0, 0.5)
+CLCDK.CD1:SetBackdrop{bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = false, tileSize = 1, insets = {left = 0, right = 0, top = 0, bottom = 0},}
+CLCDK.CD1:SetBackdropColor(0, 0, 0, 0.5)
 CLCDK.CD1:SetPoint("TOPRIGHT", CLCDK, "TOPLEFT", 0, 0)
 CLCDK.CD1.One = CLCDK:CreateIcon(spells["Horn of Winter"], 33)
 CLCDK.CD1.One:SetPoint("TOPLEFT", CLCDK.CD1, "TOPLEFT", 0, -1)
@@ -167,12 +131,12 @@ CLCDK.CD1.Two = CLCDK:CreateIcon(spells["Horn of Winter"], 33)
 CLCDK.CD1.Two:SetPoint("TOPLEFT", CLCDK.CD1.One, "BOTTOMLEFT", 0, 0)
 CLCDK.CD1.Two.Time:SetFont('Interface\\AddOns\\CLC_DK\\verdanab.ttf', 11, "OUTLINE")
 
-CLCDK.CD2 = CreateFrame("Button", nil, CLCDK)
+CLCDK.CD2 = CreateFrame("Button", nil, CLCDK, "BackdropTemplate")
 CLCDK.CD2:SetWidth(33)
 CLCDK.CD2:SetHeight(68)
 CLCDK.CD2:SetFrameStrata("BACKGROUND")
---CLCDK.CD2:SetBackdrop{bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = false, tileSize = 1, insets = {left = 0, right = 0, top = 0, bottom = 0},}
---CLCDK.CD2:SetBackdropColor(0, 0, 0, 0.5)
+CLCDK.CD2:SetBackdrop{bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = false, tileSize = 1, insets = {left = 0, right = 0, top = 0, bottom = 0},}
+CLCDK.CD2:SetBackdropColor(0, 0, 0, 0.5)
 CLCDK.CD2:SetPoint("TOPLEFT", CLCDK, "TOPRIGHT", 0, 0)
 CLCDK.CD2.One = CLCDK:CreateIcon(spells["Horn of Winter"], 33)
 CLCDK.CD2.One:SetPoint("TOPLEFT", CLCDK.CD2, "TOPLEFT", 0, -1)
@@ -186,7 +150,7 @@ CLCDK.Icon:SetHeight(46)
 CLCDK.Icon:SetWidth(46)
 CLCDK.Icon:SetPoint("BOTTOMLEFT", CLCDK, "BOTTOMLEFT", 0, 1)
 
-CLCDK.GCD = CreateFrame('StatusBar', nil, CLCDK)
+CLCDK.GCD = CreateFrame('StatusBar', nil, CLCDK, "BackdropTemplate")
 CLCDK.GCD:SetWidth(94)
 CLCDK.GCD:SetHeight(2)
 CLCDK.GCD:SetFrameStrata("BACKGROUND")
@@ -206,7 +170,7 @@ CLCDK.RunicPower:SetPoint("TOPLEFT", CLCDK.Icon, "TOPRIGHT", 4, 0)
 CLCDK.RunicPower:SetJustifyH("CENTER")
 CLCDK.RunicPower:SetFont('Interface\\AddOns\\CLC_DK\\verdanab.ttf', 18, "OUTLINE")	
 
-CLCDK.TargetCast = CreateFrame('StatusBar', nil, CLCDK)
+CLCDK.TargetCast = CreateFrame('StatusBar', nil, CLCDK, "BackdropTemplate")
 CLCDK.TargetCast:SetWidth(94)
 CLCDK.TargetCast:SetHeight(12)
 CLCDK.TargetCast:SetFrameStrata("HIGH")
@@ -215,8 +179,8 @@ CLCDK.TargetCast:SetStatusBarTexture('Interface\\TargetingFrame\\UI-StatusBar')
 CLCDK.TargetCast:SetStatusBarColor(255/255, 198/255, 0); 
 CLCDK.TargetCast:GetStatusBarTexture():SetHorizTile(false) 
 CLCDK.TargetCast:GetStatusBarTexture():SetVertTile(false)
---CLCDK.TargetCast:SetBackdrop{bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = false, tileSize = 1,insets = {left = -1, right = -1, top = -1, bottom = -1},}
---CLCDK.TargetCast:SetBackdropColor(0,0,0,0.5)
+CLCDK.TargetCast:SetBackdrop{bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background', tile = false, tileSize = 1,insets = {left = -1, right = -1, top = -1, bottom = -1},}
+CLCDK.TargetCast:SetBackdropColor(0,0,0,0.5)
 CLCDK.TargetCast.Name = CLCDK.TargetCast:CreateFontString(nil, 'OVERLAY')
 CLCDK.TargetCast.Name:SetPoint("Left",CLCDK.TargetCast, 1, 0.5)
 CLCDK.TargetCast.Name:SetJustifyH("LEFT")
@@ -228,7 +192,6 @@ CLCDK.TargetCast.Time:SetFont('Interface\\AddOns\\CLC_DK\\verdanab.ttf', 6, "OUT
 -----End Create Frames-------
 
 ------Update Frames------
-
 function CLCDK:UpdateUI()	
 	CLCDK:SetAlpha(1)
 	CLCDK.FF.Icon:SetVertexColor(1, 1, 1, 1)
@@ -403,7 +366,7 @@ function CLCDK:UpdateUI()
 	--RunicPower
 	if CLCDK_Settings.RP then
 		CLCDK.RunicPower:SetAlpha(1)	
-		r, g, b = unpack(runes_colour[3])	
+		r, g, b = unpack(runes_colour[2])	
 		CLCDK.RunicPower:SetText(string.format("|cff%02x%02x%02x%.3d|r",r*255, g*255, b*255, UnitPower("player")))	
 	else
 		CLCDK.RunicPower:SetAlpha(0)	
@@ -430,41 +393,55 @@ end
 -----End Update Frame
 
 -----Priority System-----
-local function getGCD()
+local function getGCD ()
+	local GCD
 	local curtime = GetTime()
-	local start, dur = GetSpellCooldown(47541)
-	if dur ~= 0 and start ~= nil then GCD =  dur - (start - curtime)	
+	local start, dur = GetSpellCooldown(spells["Death Coil"])
+	if dur ~= 0 and start ~= nil then GCD =  dur - (start - curtime)
 	else GCD = 0 end
 	return GCD
 end
 
-local function runeCD (a, b)
+local function runeCD(a, b)
 	local curtime = GetTime()
 	local GCD = getGCD()
-	
-	local start, dur, cool = GetRuneCooldown(a)
+			
+	local start, dur, cool = GetRuneCooldown(a)		
 	if (GetRuneType(a) == (a/2)+0.5) and (cool or (dur - (start - curtime)) < GCD) then
 		return true
 	end	
-	
+
 	local start, dur, cool = GetRuneCooldown(b)
 	if (GetRuneType(b) == (b/2)) and (cool or (dur - (start - curtime)) < GCD) then
 		return true
 	end	
-end	
+end		
 
+--Returns the total number of Death runes off CD
 local function availableDeathRunesCount()	
 	local count = 0
-	for i = 1, 6 do	
-		local _,_,cool = GetRuneCooldown(i)
-		if GetRuneType(i)==4 and cool then
-			count = count + 1
+	for i = 1, 6 do
+		local _, _, cool = GetRuneCooldown(i)
+		if GetRuneType(i) == 4 and cool then
+				count = count + 1	
 		end
 	end
 	return count
 end
 
-function CLCDK:GetRangeandIcon (move)
+-- Returns the number of depleted runes (runes on CD)
+local function DepletedRunes()
+    local count = 6
+    for i = 1, 6 do
+		local start, dur, cool = GetRuneCooldown(i)
+        if cool or isOffCD(start, dur) then
+			count = count - 1
+        end
+    end
+    return count
+end
+
+function CLCDK:GetRangeandIcon(move)
 	if IsSpellInRange(move, "target") == 0 then
 		CLCDK.Icon:SetVertexColor(0.8, 0.05, 0.05, 1);
 	end
@@ -485,136 +462,161 @@ function CLCDK:GetNextMove()
 end
 
 function CLCDK:GetDisease() 
-	local curtime = GetTime()
 	local FFexpires, BPexpires
-	
+	local GCD = getGCD ()
+	local curtime = GetTime()
 	for i = 1, 40 do
 		local name, _, _, _, dur, expires, _, _, _, id = UnitDebuff("target", i, "PLAYER");
 		if name == "Frost Fever" then
-			local FFexpires = expires - curtime;
+			FFexpires = expires - curtime;
 		elseif name == "Blood Plague" then
-			local BPexpires = expires - curtime;
-		end		
+			BPexpires = expires - curtime;
+		end			
+		if FFexpires and BPexpires then
+			break -- only cycle as many times as required and no more
+		end
 	end
-		
+	
 	--Pestilence if less then 2 sec
-	if (GoD) then
-		local start, dur = GetSpellCooldown(47541)
-		if dur ~= 0 and start ~= nil then GCD =  dur - (curtime - start)	
-		else GCD = 0 end	
-		
-		if (FFexpires ~= nil and BPexpires ~= nil) and (FFexpires  > GCD and BPexpires > GCD) and (FFexpires < (2 + GCD) or BPexpires < (2 + GCD)) and (runeCD(1,2) or availableDeathRunesCount() >= 1) then		
-			return  true, CLCDK:GetRangeandIcon (spells["Pestilence"])
+	if GoD then
+		for i = 1, 2 do
+		local start, dur = GetSpellCooldown(spells["Death Coil"])
+			if dur ~= 0 and start ~= nil then 
+				GCD =  dur - (curtime - start)	
+			else GCD = 0
+			end
 		end	
 	end
 	
-	-- Icy Touch if no Frost Fever		
-	if (FFexpires == nil or FFexpires < 2) and (runeCD(5,6) or availableDeathRunesCount() > 1) then			
-		return true, CLCDK:GetRangeandIcon (spells["Icy Touch"])
-	end
-
-	--Plague Strike if no Blood Plague
-	if (BPexpires == nil or BPexpires < 2) and (runeCD(3,4) or availableDeathRunesCount() > 1) then
-		return true, CLCDK:GetRangeandIcon (spells["Plague Strike"])
+	if (FFexpires ~= nil and BPexpires ~= nil) and (FFexpires  > GCD and BPexpires > GCD) and (FFexpires < (2 + GCD) or BPexpires < (2 + GCD)) and (runeCD(1,2) or availableDeathRunesCount() >= 1) then		
+		return  true, CLCDK:GetRangeandIcon(spells["Pestilence"])
 	end	
 	
-	return false
+	--Icy Touch if no Frost Fever	
+	if FFexpires == nil or FFexpires <= (2 + GCD) then
+		return true, CLCDK:GetRangeandIcon(spells["Icy Touch"])
+	end
+	
+	--Plague Strike if no Blood Plague	
+	if BPexpires == nil or BPexpires <= (2 + GCD) then
+		return true, CLCDK:GetRangeandIcon(spells["Plague Strike"])
+	end
+	
 end
 
  function CLCDK:UnholyMove()
 	CLCDK.Icon:SetVertexColor(1, 1, 1, 1);
 	
 	-- Bone Shield
-	name, _, _, _, _, dur, expires, _, _, _, id = UnitBuff("player", spells["Bone Shield"])
-	start, duration, enable =  GetSpellCooldown(spells["Bone Shield"])
-	if expires == nil and (runeCD(3,4) or availableDeathRunesCount() > 1) and ((not enable) or (start + duration - GetTime()) < getGCD()) then	
-		icon = GetSpellTexture(spells["Bone Shield"])
-		return icon
+	for i = 1, 3 do
+		local start, duration, enable, _ = GetSpellCooldown(spells["Bone Shield"])
+		if name == "Bone Shield" and (runeCD(3,4) or availableDeathRunesCount() > 1) and ((not enable) or (start + duration - GetTime()) < getGCD()) then	
+			icon = GetSpellTexture(spells["Bone Shield"])
+			return icon
+		end
 	end		
 	
 	--Disease Stuff
-	CLCDK:GetDisease()	
+	local disease, move = CLCDK:GetDisease()	
+	if disease then	return move	end		
 	
 	-- Blood Strike if no Deso
-	_, _, _, _, _, dur, expires, _, _, _, _ = UnitBuff("player", spells["Desolation"])
-	if expires == nil and (runeCD(1,2) or availableDeathRunesCount() > 1) then	
-		return CLCDK:GetRangeandIcon (spells["Blood Strike"])
-	end	
-	
+	for i = 1, 10 do
+	local name, _, _, _, dur, expires, _, _, _, id = UnitBuff("player", i)
+		if name == "Desolation" and expires == nil and (runeCD(1,2) or availableDeathRunesCount() > 1) then	
+			return CLCDK:GetRangeandIcon(spells["Blood Strike"])
+		end	
+	end
 	--Scourge Strike
 	if (runeCD(5,6) and runeCD(3,4)) or (availableDeathRunesCount()==1 and (runeCD(5,6) or runeCD(3,4))) or availableDeathRunesCount()>=2 then
-		return CLCDK:GetRangeandIcon (spells["Scourge Strike"])
+		return CLCDK:GetRangeandIcon(spells["Scourge Strike"])
 	end	
 	
 	-- Death Coil
 	if UnitPower("player") >= (UnitPowerMax("player")-20) then
-		return CLCDK:GetRangeandIcon (spells["Death Coil"])
+		return CLCDK:GetRangeandIcon(spells["Death Coil"])
 	end	
 	
 	-- Blood Strike
 	if runeCD(1,2) then		
-		return CLCDK:GetRangeandIcon (spells["Blood Strike"])
+		return CLCDK:GetRangeandIcon(spells["Blood Strike"])
 	end	
 		
 	-- Death Coil
 	if UnitPower("player") >= 40 then
-		return CLCDK:GetRangeandIcon (spells["Death Coil"])
+		return CLCDK:GetRangeandIcon(spells["Death Coil"])
 	end	
 	
 	if CLCDK_Settings.Horn then
-		start, duration, enable =  GetSpellCooldown(spells["Horn of Winter"])
+		start, duration, enable, _ =  GetSpellCooldown(spells["Horn of Winter"])
 		if (not enable) or(start + duration - GetTime()) < getGCD() then
 			return CLCDK:GetRangeandIcon (spells["Horn of Winter"])
 		end		
 	end
 	
 	-- If nothing else can be done
-	return nil				
+	return nil		
 end
 
 function CLCDK:FrostMove()
-	CLCDK.Icon:SetVertexColor(1, 1, 1, 1); 
-		
+	CLCDK.Icon:SetVertexColor(1, 1, 1, 1)
+	
 	-- If Killing Machine and Rime
-	for i = 1, 40 do
-		local name, _, _, _, _, expires, _, _, _, _ = UnitBuff("player", i)
-		if name == "Killing Machine" and expires ~= nil then	
-			for i = 1, 40 do
-				local name, _, _, _, _, expires, _, _, _, _ = UnitBuff("player", i)
-				if name == "Freezing Fog" and expires ~= nil then			
-					return CLCDK:GetRangeandIcon (spells["Howling Blast"])
-				end
-			end		
-		end		
-	end	
+	--for i = 1, 10 do
+	--	local name, _, _, _, duration, expires, _, _, _, spellID = UnitBuff("player", i, spells["Killing Machine"])
+	--	if expires ~= nil then
+	--		for i = 1, 10 do
+	--			local name, _, _, _, duration, expires, _, _, _, spellID = UnitBuff("player", i)
+	--			if name == (spells["Freezing Fog"]) then
+	--				return CLCDK:GetRangeandIcon(spells["Howling Blast"])
+	--			end
+	--		end
+	--	end		
+	--end
+	
 	--Disease Stuff
 	local disease, move = CLCDK:GetDisease()	
-	if disease then	return move	end			
-		
-	--Obliterate
-	if (runeCD(5,6) and runeCD(3,4)) or (availableDeathRunesCount()==1 and (runeCD(5,6) or runeCD(3,4))) or availableDeathRunesCount()>= 2 then
-		return CLCDK:GetRangeandIcon (spells["Obliterate"])
+	if disease then	return move	end
+	
+	-- Frost Strike if RP capped
+	if UnitPower("player") >= 106 then
+		return CLCDK:GetRangeandIcon(spells["Frost Strike"])
 	end	
 	
-	-- Blood Strike
-	if runeCD(1,2) then		
-		return CLCDK:GetRangeandIcon (spells["Blood Strike"])
-	end	
+	--Obliterate
+	if IsUsableSpell(spells["Death Strike"]) then
+		return CLCDK:GetRangeandIcon(spells["Death Strike"])
+    end
 		
+	-- Blood Strike if blood runes
+	if (runeCD(1,2)) then		
+		return CLCDK:GetRangeandIcon(spells["Blood Strike"])
+	end
+	
 	-- Frost Strike
 	if UnitPower("player") >= (40 - FS) then
-		return CLCDK:GetRangeandIcon (spells["Frost Strike"])
+		return CLCDK:GetRangeandIcon(spells["Frost Strike"])
 	end	
 	
+	-- Plague Strike if unholy runes
+	--if (runeCD(3,4)) then		
+	--	return CLCDK:GetRangeandIcon(spells["Plague Strike"])
+	--end
+	
+	-- Icy Touch if frost runes
+	--if (runeCD(5,6)) then		
+	--	return CLCDK:GetRangeandIcon(spells["Icy Touch"])
+	--end
+	
 	-- If Freezeing, Howling Blast
-	for i = 1, 40 do
+	for i = 1, 10 do
 		local name, _, _, _, _, _, expires, _, _, _, _ = UnitBuff("player",i)
 		if name == "Freezing Fog" and expires ~= nil then			
-			return CLCDK:GetRangeandIcon (spells["Howling Blast"])
+			return CLCDK:GetRangeandIcon(spells["Howling Blast"])
 		end	
 	end
 	-- If nothing else can be done
-	return nil				
+	return nil
 end
 
 function CLCDK:BloodMove()
@@ -626,17 +628,17 @@ function CLCDK:BloodMove()
 		
 	-- Heart Strike
 	if runeCD(1,2) then		
-		return CLCDK:GetRangeandIcon (spells["Heart Strike"])
+		return CLCDK:GetRangeandIcon(spells["Heart Strike"])
 	end	
 	
 	--Death Strike
 	if (runeCD(5,6) and runeCD(3,4)) or (availableDeathRunesCount()==1 and (runeCD(5,6) or runeCD(3,4))) or availableDeathRunesCount() >= 2 then
-		return CLCDK:GetRangeandIcon (spells["Death Strike"])
+		return CLCDK:GetRangeandIcon(spells["Death Strike"])
 	end	
 			
 	-- Death Coil
 	if UnitPower("player") >= 40 then
-		return CLCDK:GetRangeandIcon (spells["Death Coil"])
+		return CLCDK:GetRangeandIcon(spells["Death Coil"])
 	end	
 	
 	-- If nothing else can be done
@@ -651,17 +653,17 @@ function CLCDK:BlankMove()
 
 	-- Blood Strike
 	if runeCD(1,2) then		
-		return CLCDK:GetRangeandIcon (spells["Blood Strike"])
+		return CLCDK:GetRangeandIcon(spells["Blood Strike"])
 	end	
 	
 	--Death Strike
 	if (runeCD(5,6) and runeCD(3,4)) or (availableDeathRunesCount()==1 and (runeCD(5,6) or runeCD(3,4))) or availableDeathRunesCount()>=2 then
-		return CLCDK:GetRangeandIcon (spells["Death Strike"])
+		return CLCDK:GetRangeandIcon(spells["Death Strike"])
 	end	
 			
 	-- Death Coil
 	if UnitPower("player") >= 40 then
-		return CLCDK:GetRangeandIcon (spells["Death Coil"])
+		return CLCDK:GetRangeandIcon(spells["Death Coil"])
 	end	
 	
 	-- If nothing else can be done
@@ -766,8 +768,9 @@ end)
 -----End Events-----
 
 -----Options-----
-SLASH_CLCDK1 = '/clcdk'
+SLASH_CLCDK1 = "/clcdk"
 SlashCmdList["CLCDK"] = function()
+	InterfaceOptionsFrame_OpenToCategory(CLCDK_OptionsPanel)
 	InterfaceOptionsFrame_OpenToCategory(CLCDK_OptionsPanel)
 end
 
