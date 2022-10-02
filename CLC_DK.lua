@@ -1,8 +1,7 @@
-_G["CLCDK"] = CLCDK
 CLCDK_CONFIG_Ver = "3.4c"
 
 -----Create Main Frame-----
-local CLCDK = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
+local CLCDK = CreateFrame("Button", "CLCDK", UIParent, "BackdropTemplate")
 CLCDK:SetWidth(94)
 CLCDK:SetHeight(68)
 CLCDK:SetFrameStrata("BACKGROUND")
@@ -11,10 +10,11 @@ CLCDK:SetBackdropColor(0, 0, 0, 0.5)
 -----End Create Main Frame-----
 
 -----Locals-----
-local spec, GoD, FS
---local SPEC_UNKNOWN, SPEC_BLOOD, SPEC_FROST, SPEC_UNHOLY = 0, 1, 2, 3
+local spec, FS = "none", 0
+local curtime = GetTime()
 local updatetimer = 0
 local runes_colour = {{1, 0, 0},{0, 1, 1},{0, 0.95, 0},{0.8, 0.1, 1}} --Blood,  Unholy,  Frost,  Death
+
 local spells = {
 	["Frost Fever"] = GetSpellInfo(55095),
 	["Blood Plague"] = GetSpellInfo(55078),
@@ -77,6 +77,43 @@ function formatTime(timeleft)
 	end	
 	return timeleft
 end	
+
+-----Menu-----
+CLCDK:RegisterForClicks("RightButtonUp")
+CLCDK:EnableMouse(true)
+CLCDK:SetMovable(true)
+
+local CLCDK_Menu = CreateFrame("Frame", "CLCDK_Menu")
+CLCDK_Menu.displayMode = "MENU"
+local info = {}
+CLCDK_Menu.initialize = function(self, level) 
+	if not level then return end
+	wipe(info)
+	if level == 1 then
+		--Title
+	info.isTitle =1
+	info.text ="CLCDK Settings"
+	info.notCheckable = 1 
+	UIDropDownMenu_AddButton(info, level)
+	
+	info.notCheckable = nil
+	info.isTitle = nil
+	info.disabled = nil	
+	
+	--lock
+	info.text = CLCDK_CONFIG_Locked	
+	info.checked = CLCDK_Settings.Locked 
+	info.func = function() CLCDK_Settings.Locked = not CLCDK_Settings.Locked; CLCDK_OptionsRefresh(); end       
+	UIDropDownMenu_AddButton(info, level)	
+	
+	info.notCheckable = 1
+		info.checked = nil			
+				
+		info.text = "Full Settings"		
+        info.func = function() InterfaceOptionsFrame_OpenToCategory(CLCDK_OptionsPanel) end       
+        UIDropDownMenu_AddButton(info, level)	
+	end	
+end
 
 CLCDK:SetScript("OnClick", function(self, button)
 	if button == "RightButton" and CLCDK:GetAlpha() ~= 0 then
@@ -229,11 +266,11 @@ function CLCDK:UpdateUI()
 		
 		--Castbar
 		if CLCDK_Settings.CastBar then					
-			spell, _, displayName, _, startTime, endTime, _, _, _ = UnitCastingInfo("target")	
-			if spell == nil then spell, _, displayName, _, startTime, endTime, _, _, _ = UnitChannelInfo("target") end		
-			if spell ~= nil then
-				startTime = (startTime / 1000);
-				endTime = (endTime / 1000);
+			spell, _, _, startTimeMS, endTimeMS, _, _, _ , id= UnitCastingInfo("target")	
+			if spell == nil then spell, _, _, startTimeMS, endTimeMS, _, _, id = UnitChannelInfo("target") end		
+			else if spell ~= nil then
+				startTime = (startTimeMS / 1000);
+				endTime = (endTimeMS / 1000);
 				local castTime = (endTime - startTime);	 
 				CLCDK.TargetCast:SetAlpha(1)
 				CLCDK.TargetCast:SetMinMaxValues(0, castTime)
@@ -465,11 +502,12 @@ function CLCDK:GetDisease()
 	local FFexpires, BPexpires
 	local GCD = getGCD ()
 	local curtime = GetTime()
+	local GoD
 	for i = 1, 40 do
 		local name, _, _, _, dur, expires, _, _, _, id = UnitDebuff("target", i, "PLAYER");
-		if name == "Frost Fever" then
+		if name == spells["Frost Fever"] then
 			FFexpires = expires - curtime;
-		elseif name == "Blood Plague" then
+		elseif name == spells["Blood Plague"] then
 			BPexpires = expires - curtime;
 		end			
 		if FFexpires and BPexpires then
@@ -478,6 +516,14 @@ function CLCDK:GetDisease()
 	end
 	
 	--Pestilence if less then 2 sec
+	for i = 1, 6 do
+		local _, _, glyphID, _ = GetGlyphSocketInfo(i);	
+			if glyphID == 63334 then --Glyph of Disease
+			
+			end	
+		end
+	end	
+	
 	if GoD then
 		for i = 1, 2 do
 		local start, dur = GetSpellCooldown(spells["Death Coil"])
@@ -683,9 +729,6 @@ function CLCDK:CheckSpec()
 	else
 		spec = ""
 	end
-	
-	GoD = false
-	FS = 0
 	
 	for i = 1, GetNumGlyphSockets() do
 		local _, _, glyphID, _ = GetGlyphSocketInfo(i);		
