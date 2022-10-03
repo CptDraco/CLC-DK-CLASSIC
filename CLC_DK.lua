@@ -1,4 +1,4 @@
-CLCDK_CONFIG_Ver = "3.4c"
+CLCDK_CONFIG_Ver = "3.4.1c"
 
 -----Create Main Frame-----
 local CLCDK = CreateFrame("Button", "CLCDK", UIParent, "BackdropTemplate")
@@ -439,6 +439,21 @@ local function getGCD ()
 	return GCD
 end
 
+local function getGlyph(GoD, FS)
+	for i = 1, 6 do
+		local _, _, glyphID, _ = GetGlyphSocketInfo(i);	
+		if glyphID == 63334 then --Glyph of Disease
+			return true
+		end
+			
+		if glyphID == 58647 then --Glyph of Frost Strike
+			FS = 8
+			else FS = 0
+			return FS
+			end	
+		end
+	end	
+	
 local function runeCD(a, b)
 	local curtime = GetTime()
 	local GCD = getGCD()
@@ -502,7 +517,7 @@ function CLCDK:GetDisease()
 	local FFexpires, BPexpires
 	local GCD = getGCD ()
 	local curtime = GetTime()
-	local GoD
+	
 	for i = 1, 40 do
 		local name, _, _, _, dur, expires, _, _, _, id = UnitDebuff("target", i, "PLAYER");
 		if name == spells["Frost Fever"] then
@@ -515,52 +530,35 @@ function CLCDK:GetDisease()
 		end
 	end
 	
-	--Pestilence if less then 2 sec
-	for i = 1, 6 do
-		local _, _, glyphID, _ = GetGlyphSocketInfo(i);	
-			if glyphID == 63334 then --Glyph of Disease
-			
-			end	
-		end
-	end	
 	
-	if GoD then
-		for i = 1, 2 do
-		local start, dur = GetSpellCooldown(spells["Death Coil"])
-			if dur ~= 0 and start ~= nil then 
-				GCD =  dur - (curtime - start)	
-			else GCD = 0
-			end
+	--Pestilence if less then 2 sec
+	if getGlyph() == true and IsUsableSpell(spells["Pestilence"]) then 
+		if FFexpires <= 3 or BPexpires <= 3 then		
+			return  true, CLCDK:GetRangeandIcon(spells["Pestilence"])
 		end	
 	end
 	
-	if (FFexpires ~= nil and BPexpires ~= nil) and (FFexpires  > GCD and BPexpires > GCD) and (FFexpires < (2 + GCD) or BPexpires < (2 + GCD)) and (runeCD(1,2) or availableDeathRunesCount() >= 1) then		
-		return  true, CLCDK:GetRangeandIcon(spells["Pestilence"])
-	end	
-	
 	--Icy Touch if no Frost Fever	
-	if FFexpires == nil or FFexpires <= (2 + GCD) then
+	if FFexpires == nil or FFexpires <= 3 then
 		return true, CLCDK:GetRangeandIcon(spells["Icy Touch"])
 	end
 	
 	--Plague Strike if no Blood Plague	
-	if BPexpires == nil or BPexpires <= (2 + GCD) then
+	if BPexpires == nil or BPexpires <= 3 then
 		return true, CLCDK:GetRangeandIcon(spells["Plague Strike"])
 	end
 	
 end
 
+
  function CLCDK:UnholyMove()
 	CLCDK.Icon:SetVertexColor(1, 1, 1, 1);
 	
 	-- Bone Shield
-	for i = 1, 3 do
-		local start, duration, enable, _ = GetSpellCooldown(spells["Bone Shield"])
-		if name == "Bone Shield" and (runeCD(3,4) or availableDeathRunesCount() > 1) and ((not enable) or (start + duration - GetTime()) < getGCD()) then	
-			icon = GetSpellTexture(spells["Bone Shield"])
-			return icon
-		end
-	end		
+	local start, duration, enable, _ = GetSpellCooldown(spells["Bone Shield"])
+	if enable == 1 and duration == 0 then
+		return true, CLCDK:GetRangeandIcon(spells["Bone Shield"])
+	end	
 	
 	--Disease Stuff
 	local disease, move = CLCDK:GetDisease()	
@@ -608,17 +606,12 @@ function CLCDK:FrostMove()
 	CLCDK.Icon:SetVertexColor(1, 1, 1, 1)
 	
 	-- If Killing Machine and Rime
-	--for i = 1, 10 do
-	--	local name, _, _, _, duration, expires, _, _, _, spellID = UnitBuff("player", i, spells["Killing Machine"])
-	--	if expires ~= nil then
-	--		for i = 1, 10 do
-	--			local name, _, _, _, duration, expires, _, _, _, spellID = UnitBuff("player", i)
-	--			if name == (spells["Freezing Fog"]) then
-	--				return CLCDK:GetRangeandIcon(spells["Howling Blast"])
-	--			end
-	--		end
-	--	end		
-	--end
+	for i = 1, 10 do
+		local name, _, _, _, duration, expires, _, _, _, spellID = UnitBuff("player", i)
+		if name == (spells["Killing Machine"]) and id == (spells["Freezing Fog"]) then
+			return CLCDK:GetRangeandIcon(spells["Howling Blast"])
+		end		
+	end
 	
 	--Disease Stuff
 	local disease, move = CLCDK:GetDisease()	
@@ -633,7 +626,12 @@ function CLCDK:FrostMove()
 	if IsUsableSpell(spells["Death Strike"]) then
 		return CLCDK:GetRangeandIcon(spells["Obliterate"])
     end
-		
+	
+	-- Frost Strike
+	if UnitPower("player") >= (40 - FS) then
+		return CLCDK:GetRangeandIcon(spells["Frost Strike"])
+	end	
+	
 	-- Blood Strike if blood runes
 	if (runeCD(1,2)) then		
 		return CLCDK:GetRangeandIcon(spells["Blood Strike"])
@@ -644,22 +642,20 @@ function CLCDK:FrostMove()
 		return CLCDK:GetRangeandIcon(spells["Frost Strike"])
 	end	
 	
-	-- Plague Strike if unholy runes
-	--if (runeCD(3,4)) then		
-	--	return CLCDK:GetRangeandIcon(spells["Plague Strike"])
-	--end
-	
-	-- Icy Touch if frost runes
-	--if (runeCD(5,6)) then		
-	--	return CLCDK:GetRangeandIcon(spells["Icy Touch"])
-	--end
-	
 	-- If Freezeing, Howling Blast
 	for i = 1, 10 do
 		local name, _, _, _, _, _, expires, _, _, _, _ = UnitBuff("player",i)
 		if name == "Freezing Fog" and expires ~= nil then			
 			return CLCDK:GetRangeandIcon(spells["Howling Blast"])
 		end	
+	end
+	
+	-- Horn of Winter
+	if CLCDK_Settings.Horn then
+		start, duration, enable, _ =  GetSpellCooldown(spells["Horn of Winter"])
+		if (not enable) or(start + duration - GetTime()) < getGCD() then
+			return CLCDK:GetRangeandIcon (spells["Horn of Winter"])
+		end		
 	end
 	-- If nothing else can be done
 	return nil
@@ -729,21 +725,6 @@ function CLCDK:CheckSpec()
 	else
 		spec = ""
 	end
-	
-	for i = 1, GetNumGlyphSockets() do
-		local _, _, glyphID, _ = GetGlyphSocketInfo(i);		
-		if ( glyphID ~= nil ) then	
-			--name= GetSpellInfo(glyphID)
-			--print(name..":"..glyphID)
-		
-			if ( glyphID == 63334 ) then --Glyph of Disease
-				GoD = true
-			end	
-			if ( glyphID == 58647 ) then --Glyph of Frost Strike
-				FS = 8
-			end	
-		end
-	end	
 	CLCDK_OptionsRefresh()
 end
 ------End Check Spec------
