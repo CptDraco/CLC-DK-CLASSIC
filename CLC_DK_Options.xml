@@ -39,7 +39,7 @@
 				<FontString text="CLCDK_CONFIG_Author" inherits="GameFontDisableSmall" justifyH="LEFT">
 					<Anchors><Anchor point="BOTTOMRIGHT"><Offset><AbsDimension x="-15" y="25"/></Offset></Anchor></Anchors>
 				</FontString>
-				<FontString text="CLCDK_CONFIG_Version" inherits="GameFontDisableSmall" justifyH="LEFT">
+				<FontString text="CLCDK_CONFIG_Vers" inherits="GameFontDisableSmall" justifyH="LEFT">
 					<Anchors><Anchor point="BOTTOMRIGHT"><Offset><AbsDimension x="-15" y="15"/></Offset></Anchor></Anchors>
 				</FontString>
 			</Layer>			
@@ -237,11 +237,17 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>				
-				
-				
+		
+		
 			<!--Horn -->	
 			<CheckButton name="$parent_Horn" inherits="InterfaceOptionsBaseCheckButtonTemplate">
-				<Anchors><Anchor point="TOPLEFT" relativeTo="$parent_Disease"><Offset><AbsDimension x="0" y="-40"/></Offset></Anchor></Anchors>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_Disease">
+						<Offset>
+							<AbsDimension  x="0" y="-25"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
 						<FontString name="$parentText" text="CLCDK_CONFIG_Horn" inherits="GameFontHighlight">
@@ -265,9 +271,41 @@
 				</Scripts>
 			</CheckButton>	
 			
+			<!--Pestilence-->	
+			<CheckButton name="$parent_Pestilence" inherits="InterfaceOptionsBaseCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_Horn">
+						<Offset>
+							<AbsDimension  x="0" y="-25"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentText" text="CLCDK_CONFIG_Pestilence" inherits="GameFontHighlight">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="0" y="1"/>
+									</Offset>
+								</Anchor>
+						  </Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						self.tooltipText = CLCDK_TOOLTIP_Pest
+					</OnLoad>
+					<OnClick>
+						CLCDK_Settings.Pestilence = (CLCDK_OptionsPanel_Pestilence:GetChecked());	
+					</OnClick>
+				</Scripts>
+			</CheckButton>	
+			
 			<!--CD -->	
 			<CheckButton name="$parent_CD1" inherits="InterfaceOptionsBaseCheckButtonTemplate">
-				<Anchors><Anchor point="TOPLEFT" relativeTo="$parent_Horn"><Offset><AbsDimension x="0" y="-40"/></Offset></Anchor></Anchors>
+				<Anchors><Anchor point="TOPLEFT" relativeTo="$parent_Pestilence"><Offset><AbsDimension x="0" y="-40"/></Offset></Anchor></Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
 						<FontString name="$parentText" text="CLCDK_CONFIG_CD1" inherits="GameFontHighlight">

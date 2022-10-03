@@ -1,4 +1,4 @@
-CLCDK_CONFIG_Ver = "3.4.1c"
+CLCDK_VERSION = "3.4.1"
 
 -----Create Main Frame-----
 local CLCDK = CreateFrame("Button", "CLCDK", UIParent, "BackdropTemplate")
@@ -10,7 +10,7 @@ CLCDK:SetBackdropColor(0, 0, 0, 0.5)
 -----End Create Main Frame-----
 
 -----Locals-----
-local spec, FS = "none", 0
+local spec = "none"
 local curtime = GetTime()
 local updatetimer = 0
 local runes_colour = {{1, 0, 0},{0, 1, 1},{0, 0.95, 0},{0.8, 0.1, 1}} --Blood,  Unholy,  Frost,  Death
@@ -92,7 +92,7 @@ CLCDK_Menu.initialize = function(self, level)
 	if level == 1 then
 		--Title
 	info.isTitle =1
-	info.text ="CLCDK Settings"
+	info.text = "CLCDK Settings"
 	info.notCheckable = 1 
 	UIDropDownMenu_AddButton(info, level)
 	
@@ -438,26 +438,11 @@ local function getGCD ()
 	else GCD = 0 end
 	return GCD
 end
-
-local function getGlyph(GoD, FS)
-	for i = 1, 6 do
-		local _, _, glyphID, _ = GetGlyphSocketInfo(i);	
-		if glyphID == 63334 then --Glyph of Disease
-			return true
-		end
-			
-		if glyphID == 58647 then --Glyph of Frost Strike
-			FS = 8
-			else FS = 0
-			return FS
-			end	
-		end
-	end	
 	
 local function runeCD(a, b)
 	local curtime = GetTime()
 	local GCD = getGCD()
-			
+	
 	local start, dur, cool = GetRuneCooldown(a)		
 	if (GetRuneType(a) == (a/2)+0.5) and (cool or (dur - (start - curtime)) < GCD) then
 		return true
@@ -515,41 +500,29 @@ end
 
 function CLCDK:GetDisease() 
 	local FFexpires, BPexpires
-	local GCD = getGCD ()
-	local curtime = GetTime()
-	
 	for i = 1, 40 do
 		local name, _, _, _, dur, expires, _, _, _, id = UnitDebuff("target", i, "PLAYER");
-		if name == spells["Frost Fever"] then
-			FFexpires = expires - curtime;
-		elseif name == spells["Blood Plague"] then
-			BPexpires = expires - curtime;
-		end			
+		if name == spells["Frost Fever"] then 
+		FFexpires = expires - curtime end
+		if name == spells["Blood Plague"] then 
+		BPexpires = expires - curtime end	
 		if FFexpires and BPexpires then
 			break -- only cycle as many times as required and no more
 		end
 	end
 	
-	
-	--Pestilence if less then 2 sec
-	if getGlyph() == true and IsUsableSpell(spells["Pestilence"]) then 
-		if FFexpires <= 3 or BPexpires <= 3 then		
-			return  true, CLCDK:GetRangeandIcon(spells["Pestilence"])
+	-- Check for Glyph of Disease and apply/refresh diseases
+	local pest = CLCDK_Settings.Pest
+	if pest and FFexpires ~= nil and BPexpires ~= nil then
+		if FFexpires < 3 or BPexpires <3 then
+			return true, CLCDK:GetRangeandIcon(spells["Pestilence"])
 		end	
-	end
-	
-	--Icy Touch if no Frost Fever	
-	if FFexpires == nil or FFexpires <= 3 then
+	elseif not pest and FFexpires == nil or not pest and FFexpires < 3 then
 		return true, CLCDK:GetRangeandIcon(spells["Icy Touch"])
-	end
-	
-	--Plague Strike if no Blood Plague	
-	if BPexpires == nil or BPexpires <= 3 then
+	elseif not pest and BPexpires == nil or not pest and BPexpires < 3 then
 		return true, CLCDK:GetRangeandIcon(spells["Plague Strike"])
 	end
-	
 end
-
 
  function CLCDK:UnholyMove()
 	CLCDK.Icon:SetVertexColor(1, 1, 1, 1);
@@ -567,7 +540,7 @@ end
 	-- Blood Strike if no Deso
 	for i = 1, 10 do
 	local name, _, _, _, dur, expires, _, _, _, id = UnitBuff("player", i)
-		if name == "Desolation" and expires == nil and (runeCD(1,2) or availableDeathRunesCount() > 1) then	
+		if name == (spells["Desolation"]) and expires == nil and (runeCD(1,2) or availableDeathRunesCount() > 1) then	
 			return CLCDK:GetRangeandIcon(spells["Blood Strike"])
 		end	
 	end
@@ -591,11 +564,11 @@ end
 		return CLCDK:GetRangeandIcon(spells["Death Coil"])
 	end	
 	
-	if CLCDK_Settings.Horn then
-		start, duration, enable, _ =  GetSpellCooldown(spells["Horn of Winter"])
-		if (not enable) or(start + duration - GetTime()) < getGCD() then
-			return CLCDK:GetRangeandIcon (spells["Horn of Winter"])
-		end		
+	if CLCDK_Settings.Horn then 
+	local usable, nomana = IsUsableSpell(spells["Horn of Winter"])
+		if usable then
+		return CLCDK:GetRangeandIcon (spells["Horn of Winter"])
+		end
 	end
 	
 	-- If nothing else can be done
@@ -604,33 +577,36 @@ end
 
 function CLCDK:FrostMove()
 	CLCDK.Icon:SetVertexColor(1, 1, 1, 1)
+	local KillingMachine, Rime
 	
 	-- If Killing Machine and Rime
 	for i = 1, 10 do
 		local name, _, _, _, duration, expires, _, _, _, spellID = UnitBuff("player", i)
-		if name == (spells["Killing Machine"]) and id == (spells["Freezing Fog"]) then
-			return CLCDK:GetRangeandIcon(spells["Howling Blast"])
+		if name == (spells["Killing Machine"]) then
+			KillingMachine = true
+		end
+		if name == (spells["Freezing Fog"]) then
+			Rime = true
 		end		
+	end
+	
+	if KillingMachine == true and Rime == true then	
+		return CLCDK:GetRangeandIcon(spells["Howling Blast"])
 	end
 	
 	--Disease Stuff
 	local disease, move = CLCDK:GetDisease()	
 	if disease then	return move	end
 	
-	-- Frost Strike if RP capped
-	if UnitPower("player") >= 106 then
+	-- Frost Strike if  Killing Machine or RP capped
+	if KillingMachine == true and IsUsableSpell(spells["Frost Strike"]) then
 		return CLCDK:GetRangeandIcon(spells["Frost Strike"])
 	end	
 	
 	--Obliterate
-	if IsUsableSpell(spells["Death Strike"]) then
+	if IsUsableSpell(spells["Obliterate"]) then
 		return CLCDK:GetRangeandIcon(spells["Obliterate"])
     end
-	
-	-- Frost Strike
-	if UnitPower("player") >= (40 - FS) then
-		return CLCDK:GetRangeandIcon(spells["Frost Strike"])
-	end	
 	
 	-- Blood Strike if blood runes
 	if (runeCD(1,2)) then		
@@ -638,50 +614,58 @@ function CLCDK:FrostMove()
 	end
 	
 	-- Frost Strike
-	if UnitPower("player") >= (40 - FS) then
+	if IsUsableSpell(spells["Frost Strike"]) == true then
 		return CLCDK:GetRangeandIcon(spells["Frost Strike"])
 	end	
 	
 	-- If Freezeing, Howling Blast
-	for i = 1, 10 do
-		local name, _, _, _, _, _, expires, _, _, _, _ = UnitBuff("player",i)
-		if name == "Freezing Fog" and expires ~= nil then			
-			return CLCDK:GetRangeandIcon(spells["Howling Blast"])
-		end	
-	end
+	
+	if Rime == true and IsUsableSpell(spells["Howling Blast"]) == true then			
+		return CLCDK:GetRangeandIcon(spells["Howling Blast"])
+	end	
 	
 	-- Horn of Winter
-	if CLCDK_Settings.Horn then
-		start, duration, enable, _ =  GetSpellCooldown(spells["Horn of Winter"])
-		if (not enable) or(start + duration - GetTime()) < getGCD() then
-			return CLCDK:GetRangeandIcon (spells["Horn of Winter"])
-		end		
+	if CLCDK_Settings.Horn then 
+	local usable, nomana = IsUsableSpell(spells["Horn of Winter"])
+		if usable then
+		return CLCDK:GetRangeandIcon (spells["Horn of Winter"])
+		end
 	end
+	
 	-- If nothing else can be done
 	return nil
 end
 
 function CLCDK:BloodMove()
 	CLCDK.Icon:SetVertexColor(1, 1, 1, 1); 
-		
+
 	--Disease Stuff
 	local disease, move = CLCDK:GetDisease()	
 	if disease then	return move	end		
-		
+
 	-- Heart Strike
 	if runeCD(1,2) then		
 		return CLCDK:GetRangeandIcon(spells["Heart Strike"])
 	end	
 	
 	--Death Strike
-	if (runeCD(5,6) and runeCD(3,4)) or (availableDeathRunesCount()==1 and (runeCD(5,6) or runeCD(3,4))) or availableDeathRunesCount() >= 2 then
-		return CLCDK:GetRangeandIcon(spells["Death Strike"])
-	end	
-			
+	local usable, nomana = IsUsableSpell(spells["Death Strike"])
+		if usable then
+		return CLCDK:GetRangeandIcon (spells["Death Strike"])
+	end
+	
 	-- Death Coil
 	if UnitPower("player") >= 40 then
 		return CLCDK:GetRangeandIcon(spells["Death Coil"])
 	end	
+	
+	-- Horn of Winter
+	if CLCDK_Settings.Horn then 
+	local usable, nomana = IsUsableSpell(spells["Horn of Winter"])
+		if usable then
+		return CLCDK:GetRangeandIcon (spells["Horn of Winter"])
+		end
+	end
 	
 	-- If nothing else can be done
 	return nil				
@@ -738,57 +722,49 @@ CLCDK:RegisterEvent("GLYPH_ADDED")
 
 CLCDK:SetScript("OnEvent", function(self, e) 
 	CLCDK:CheckSpec()
-	if(e == "PLAYER_LOGIN") then CLCDK:Login() end	
+	if(e == "PLAYER_LOGIN") then CLCDK:Initialize() end	
 end)
 
-function CLCDK:Login()
-	_, englishClass = UnitClass("player");	
-	if englishClass == "DEATHKNIGHT" then
-		RuneFrame:Hide()	
-		
-		if CLCDK_Settings == nil or CLCDK_Settings.Version == nil or CLCDK_Settings.Version < CLCDK_CONFIG_Ver then
-			CLCDK_SetDefaults()
-		end
-				
-		CLCDK.BP = CLCDK:CreateIcon(spells["Blood Plague"], 24)
-		CLCDK.BP:SetPoint("BOTTOMRIGHT", CLCDK, "BOTTOMRIGHT", 0, 0)
-		CLCDK.FF = CLCDK:CreateIcon(spells["Frost Fever"], 24)
-		CLCDK.FF:SetPoint("RIGHT", CLCDK.BP, "LEFT", 0, 0)
-				
-		UIDropDownMenu_Initialize(CLCDK_OptionsPanel_CD1_One, CLCDK_OptionsPanel_OnLoad);
-		UIDropDownMenu_Initialize(CLCDK_OptionsPanel_CD1_Two, CLCDK_OptionsPanel_OnLoad);
-		UIDropDownMenu_Initialize(CLCDK_OptionsPanel_CD2_One, CLCDK_OptionsPanel_OnLoad);
-		UIDropDownMenu_Initialize(CLCDK_OptionsPanel_CD2_Two, CLCDK_OptionsPanel_OnLoad);		
-		UIDropDownMenu_Initialize(CLCDK_OptionsPanel_ViewDD, CLCDK_OptionsPanel_ViewDD_OnLoad);						
-							
-		CLCDKUpdatePosition()				
-		CLCDK:UpdateUI()		
-		InterfaceOptions_AddCategory(CLCDK_OptionsPanel);
-		CLCDK_OptionsRefresh()	
-	else
-		CLCDK.Show = dummy	
-		CLCDK:UnregisterAllEvents()	
-		CLCDK:Hide()	
-		CLCDK = nil
-		CLCDK_OptionsPanel:UnregisterAllEvents()	
-		CLCDK_OptionsPanel:Hide()
-	end		
+function CLCDK:Initialize()	
+
+	CLCDK.BP = CLCDK:CreateIcon(spells["Blood Plague"], 24)
+	CLCDK.BP:SetPoint("BOTTOMRIGHT", CLCDK, "BOTTOMRIGHT", 0, 0)
+	CLCDK.FF = CLCDK:CreateIcon(spells["Frost Fever"], 24)
+	CLCDK.FF:SetPoint("RIGHT", CLCDK.BP, "LEFT", 0, 0)
+	
+	UIDropDownMenu_Initialize(CLCDK_OptionsPanel_CD1_One, CLCDK_OptionsPanel_OnLoad);
+	UIDropDownMenu_Initialize(CLCDK_OptionsPanel_CD1_Two, CLCDK_OptionsPanel_OnLoad);
+	UIDropDownMenu_Initialize(CLCDK_OptionsPanel_CD2_One, CLCDK_OptionsPanel_OnLoad);
+	UIDropDownMenu_Initialize(CLCDK_OptionsPanel_CD2_Two, CLCDK_OptionsPanel_OnLoad);		
+	UIDropDownMenu_Initialize(CLCDK_OptionsPanel_ViewDD, CLCDK_OptionsPanel_ViewDD_OnLoad);						
+
+	CLCDK:UpdateUI()		
+	InterfaceOptions_AddCategory(CLCDK_OptionsPanel);
+	CLCDK_OptionsOkay()
+	CLCDK_OptionsRefresh()
+	CLCDK:CheckSpec()
+	loaded = true
+	collectgarbage()
+	
 end
 
+--Main Script to update and initialize addon
 CLCDK:SetScript("OnUpdate", function() 
-	local timer = GetTime()    	
-	if (timer - updatetimer >= 0.05) then		
-		updatetimer = timer		
-		--Update Frame
+	local curtime = GetTime() 
+	--set update timer
+	if (curtime - updatetimer >= 0.08) then		
+		updatetimer = curtime		
 		
-		if (InCombatLockdown() or CLCDK_Settings.VScheme == "show" or (not CLCDK_Settings.Locked) or (UnitCanAttack("player", "target") and (not UnitIsDead("target")) and CLCDK_Settings.VScheme == "norm" )) and (not UnitInVehicle("player")) then	
-			CLCDK:UpdateUI()	
-		else	
-			if CLCDK_Settings.VScheme == "norm" or CLCDK_Settings.VScheme == "hide" then
-				CLCDK:SetAlpha(0)
-			else
-				CLCDK:SetAlpha(1)
+		if (not loaded) then
+			if launchtime == 0 then launchtime = curtime;
 			end
+			
+			CLCDK:Initialize()
+		elseif loaded then
+			CLCDK:UpdateUI()		
+			
+		else
+			CLCDK:SetAlpha(0)
 		end		
 	end	
 end)
@@ -804,7 +780,7 @@ end
 function CLCDK_SetDefaults()
 	CLCDK_Settings = {}
 	
-	CLCDK_Settings.Version = CLCDK_CONFIG_Ver
+	CLCDK_Settings.Version = CLCDK_VERSION
 	CLCDK_Settings.Locked = true
 	
 	CLCDK_Settings.Point = "Center"
@@ -817,6 +793,7 @@ function CLCDK_SetDefaults()
 	CLCDK_Settings.CastBar = false
 	CLCDK_Settings.Priority = true
 	CLCDK_Settings.Horn = false
+	CLCDK_Settings.Pest = false
 	CLCDK_Settings.GCD = true
 	CLCDK_Settings.Rune = true
 	CLCDK_Settings.RP = true
@@ -825,11 +802,11 @@ function CLCDK_SetDefaults()
 	CLCDK_Settings.CD = {
 		["1"] = true,
 		["CLCDK_OptionsPanel_CD1_One"] = spells["Horn of Winter"],
-		["CLCDK_OptionsPanel_CD1_Two"] = spells["Blood Tap"],
+		["CLCDK_OptionsPanel_CD1_Two"] = spells["Death Grip"],
 		
 		["2"] = true,
 		["CLCDK_OptionsPanel_CD2_One"] = spells["Raise Dead"],
-		["CLCDK_OptionsPanel_CD2_Two"] = spells["Army of the Dead"],
+		["CLCDK_OptionsPanel_CD2_Two"] = spells["Death and Decay"],
 	}
 	
 	CLCDK_OptionsRefresh()
@@ -837,60 +814,68 @@ function CLCDK_SetDefaults()
 end
 
 function CLCDK_OptionsRefresh()
-	if CLCDK_Settings ~= nil and (CLCDK_Settings.Version ~= nil and CLCDK_Settings.Version == CLCDK_CONFIG_Ver) then
-		if (spec == "unholy") then
-			CLCDK_OptionsPanel_Title_Spec:SetText(CLCDK_Spec_Unholy)
-		elseif (spec == "frost") then
-			CLCDK_OptionsPanel_Title_Spec:SetText(CLCDK_Spec_Frost)
-		elseif (spec == "blood") then
-			CLCDK_OptionsPanel_Title_Spec:SetText(CLCDK_Spec_Blood)
-		else
-			CLCDK_OptionsPanel_Title_Spec:SetText(CLCDK_Spec_None)
-		end
-				
-		if CLCDK_Settings.Locked then
-			CLCDK:EnableMouse(false)
-		else
-			CLCDK:EnableMouse(true)
-		end		
-				
+	--Failsafe to set defaults, uncomment in case of emergency
+
+	--CLCDK_SetDefaults()
+
+	if CLCDK_Settings ~= nil and CLCDK_Settings.Version ~= nil and CLCDK_Settings.Version == CLCDK_VERSION then
+		
+		--Frame
 		CLCDK_OptionsPanel_Castbar:SetChecked(CLCDK_Settings.CastBar);
 		CLCDK_OptionsPanel_Priority:SetChecked(CLCDK_Settings.Priority);	
 		CLCDK_OptionsPanel_GCD:SetChecked(CLCDK_Settings.GCD);
 		CLCDK_OptionsPanel_Rune:SetChecked(CLCDK_Settings.Rune);
 		CLCDK_OptionsPanel_RP:SetChecked(CLCDK_Settings.RP);
 		CLCDK_OptionsPanel_Disease:SetChecked(CLCDK_Settings.Disease);
-		
 		CLCDK_OptionsPanel_Horn:SetChecked(CLCDK_Settings.Horn);
-		
+		CLCDK_OptionsPanel_Pest:SetChecked(CLCDK_Settings.Pest);
+	
+		--CD1
 		CLCDK_OptionsPanel_CD1:SetChecked(CLCDK_Settings.CD["1"]);	
 		UIDropDownMenu_SetSelectedValue(CLCDK_OptionsPanel_CD1_One, CLCDK_Settings.CD["CLCDK_OptionsPanel_CD1_One"])
 		UIDropDownMenu_SetSelectedValue(CLCDK_OptionsPanel_CD1_Two, CLCDK_Settings.CD["CLCDK_OptionsPanel_CD1_Two"])
-			
+		UIDropdownMenu_SetText(CLCDK_OptionsPanel_CD1_One, CLCDK_Settings.CD["CLCDK_OptionsPanel_CD1_One"])
+		UIDropDownMenu_SetText(CLCDK_OptionsPanel_CD1_Two, CLCDK_Settings.CD["CLCDK_OptionsPanel_CD1_Two"])
+		
+		--CD2
 		CLCDK_OptionsPanel_CD2:SetChecked(CLCDK_Settings.CD["2"]);	
 		UIDropDownMenu_SetSelectedValue(CLCDK_OptionsPanel_CD2_One, CLCDK_Settings.CD["CLCDK_OptionsPanel_CD2_One"])
 		UIDropDownMenu_SetSelectedValue(CLCDK_OptionsPanel_CD2_Two, CLCDK_Settings.CD["CLCDK_OptionsPanel_CD2_Two"])
-				
-				
+		UIDropdownMenu_SetText(CLCDK_OptionsPanel_CD1_One, CLCDK_Settings.CD["CLCDK_OptionsPanel_CD1_One"])
+		UIDropDownMenu_SetText(CLCDK_OptionsPanel_CD1_Two, CLCDK_Settings.CD["CLCDK_OptionsPanel_CD1_Two"])
+		
+		--locked
 		CLCDK_OptionsPanel_Locked:SetChecked(CLCDK_Settings.Locked);
-		UIDropDownMenu_SetSelectedValue(CLCDK_OptionsPanel_ViewDD, CLCDK_Settings.VScheme)	
+		
+		--View Dropdown
+		UIDropDownMenu_SetSelectedValue(CLCDK_OptionsPanel_ViewDD, CLCDK_Settings.VScheme)
+		UIDropDownMenu_SetText(CLCDK_FramePanel_ViewDD, CLCDK_Settings.VScheme)
+		
 		CLCDK_OptionsPanel_Scale:SetNumber(CLCDK_Settings.Scale)
 		CLCDK_OptionsPanel_Scale:SetCursorPosition(0)	
 		CLCDK_OptionsPanel_Trans:SetNumber(CLCDK_Settings.Trans)
-		CLCDK_OptionsPanel_Trans:SetCursorPosition(0)				
+		CLCDK_OptionsPanel_Trans:SetCursorPosition(0)
+
+		CLCDK:UpdatePosition()
 	end
 end
 
 function CLCDK_OptionsOkay()
-	if CLCDK_Settings ~= nil and (CLCDK_Settings.Version ~= nil and CLCDK_Settings.Version == CLCDK_CONFIG_Ver) then
-		CLCDK_Settings.Locked = (CLCDK_OptionsPanel_Locked:GetChecked());	
+	if CLCDK_Settings ~= nil and (CLCDK_Settings.Version ~= nil and CLCDK_Settings.Version == CLCDK_VERSION) then
 		
+		CLCDK_Settings.Locked = CLCDK_OptionsPanel_Locked:GetChecked()
+		CLCDK_Settings.Disease = CLCDK_OptionsPanel_Disease:GetChecked()
+		CLCDK_Settings.Horn = CLCDK_OptionsPanel_Horn:GetChecked()
+		CLCDK_Settings.Pest = CLCDK_OptionsPanel_Pest:GetChecked()
+
+		--scale
 		if CLCDK_OptionsPanel_Scale:GetNumber() >= 0.5 and CLCDK_OptionsPanel_Scale:GetNumber() <= 5 then
 			CLCDK_Settings.Scale = CLCDK_OptionsPanel_Scale:GetNumber()
 		else
 			CLCDK_OptionsPanel_Scale:SetNumber(CLCDK_Settings.Scale)
 		end
 		
+		--Transparency
 		if CLCDK_OptionsPanel_Trans:GetNumber() >= 0 and CLCDK_OptionsPanel_Trans:GetNumber() <= 1 then
 			CLCDK_Settings.Trans = CLCDK_OptionsPanel_Trans:GetNumber()
 		else

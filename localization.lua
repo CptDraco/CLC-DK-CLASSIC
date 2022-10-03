@@ -1,6 +1,6 @@
 CLCDK_ADDONNAME = "CLC DK"
 CLCDK_CONFIG_Author = "Author:  Aerendil"
-CLCDK_CONFIG_Version = "Version:  1.0"
+CLCDK_CONFIG_Vers = "Version:  3.4.1"
 
 CLCDK_SPEC = "Current Spec: (None)"
 
@@ -10,8 +10,10 @@ CLCDK_CONFIG_GCD = "Show GCD Bar"
 CLCDK_CONFIG_Rune = "Show Rune Bar"
 CLCDK_CONFIG_RP = "Show Runic Power"
 CLCDK_CONFIG_Disease = "Show Disease Timers"
-
 CLCDK_CONFIG_Horn = "Show Horn of Winter in Rotation"
+CLDDK_CONFIG_Pest = "Show Pestilence in Rotation"
+
+
 CLCDK_CONFIG_CD1 = "Show Left Cooldowns"
 CLCDK_CONFIG_CD1_One = "Cooldown #1 to Watch"
 CLCDK_CONFIG_CD1_Two = "Cooldown #2 to Watch"
@@ -27,13 +29,14 @@ CLCDK_CONFIG_View = "Change View of CLC DK"
 CLCDK_CONFIG_Scale = "Scale (0.5-5)"
 CLCDK_CONFIG_Trans = "Backdrop Transparency (0-1)"
 
-CLCDK_TOOLTIP_Castbar = "Show built-in CLC DK Castbar."
+CLCDK_TOOLTIP_Castbar = "Show the Castbar, TESTING ONLY"
 CLCDK_TOOLTIP_Priority = "Show built-in CLC DK Priority System."
 CLCDK_TOOLTIP_GCD = "Show built-in CLC DK GCD Bar"
 CLCDK_TOOLTIP_Rune = "Show built-in CLC DK Rune Bar"
 CLCDK_TOOLTIP_RP = "Show built-in CLC DK Runic Power"
 CLCDK_TOOLTIP_Disease = "Show built-in CLC DK Disease Timers"
 
+CLCDK_TOOLTIP_Pest = "Add Pestilence into rotations if Glyph of Disease equipped."
 CLCDK_TOOLTIP_Horn = "Add Horn of Winter into rotations."
 CLCDK_TOOLTIP_CD1 = "Show Two Cooldown Frames"
 
